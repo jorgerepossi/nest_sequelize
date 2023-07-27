@@ -1,22 +1,43 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Param,
+  Patch,
+  Query,
+} from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserDTO } from 'src/dto/user.dto';
+import {
+  CreateUserDTO,
+  PaginationQueryDTO,
+  UpdateUserDTO,
+} from 'src/user/dtos';
 import { User } from 'src/schemas/user.model';
 
 @Controller('user')
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(private readonly userService: UserService) {}
 
   @Get()
-  getAllUsers() {
-    return this.userService.getAllUsers();
+  getAll(@Query() pagination: PaginationQueryDTO): Promise<User[]> {
+    return this.userService.getAll(pagination);
+  }
+
+  @Get(':id')
+  async getById(@Param('id') id: string) {
+    return this.userService.getById(id);
   }
   @Post()
-  createUser(@Body() newUser: UserDTO) {
-    return this.userService.createUser(newUser);
+  async createUser(@Body() createUserDto: CreateUserDTO) {
+    return this.userService.createUser(createUserDto);
   }
-  @Get(':id')
-  findOneUser(@Param('id') id: number): Promise<User> {
-    return this.userService.findOne(id);
+
+  @Patch(':id')
+  async updateUser(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDTO,
+  ) {
+    return this.userService.updateUser(updateUserDto, id);
   }
 }
